@@ -1,0 +1,3 @@
+/home/mr_robot/rom_developers/user/build/CMakeFiles/app.dir
+/home/mr_robot/rom_developers/user/build/CMakeFiles/edit_cache.dir
+/home/mr_robot/rom_developers/user/build/CMakeFiles/rebuild_cache.dir

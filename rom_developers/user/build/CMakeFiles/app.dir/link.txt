@@ -1,0 +1,1 @@
+/usr/bin/c++ CMakeFiles/app.dir/app_height.cpp.o -o app  /opt/unitree_robotics/lib/libunitree_sdk2.a -lddsc -lddscxx 

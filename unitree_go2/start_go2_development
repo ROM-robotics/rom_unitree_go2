@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+set -e
+
+IMAGE_NAME="romrobotics/unitree:go2_dev"
+CONTAINER_NAME="go2_dev_container"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROM_DEVELOPERS_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)/rom_developers"
+
+# Build the Docker image if it doesn't exist
+if ! docker image inspect "${IMAGE_NAME}" > /dev/null 2>&1; then
+    echo "[INFO] Image '${IMAGE_NAME}' not found. Building..."
+    docker build -t "${IMAGE_NAME}" "${SCRIPT_DIR}"
+fi
+
+# Create rom_developers directory on the host if it doesn't exist
+if [ ! -d "${ROM_DEVELOPERS_DIR}" ]; then
+    echo "[INFO] Creating host directory: ${ROM_DEVELOPERS_DIR}"
+    mkdir -p "${ROM_DEVELOPERS_DIR}"
+fi
+
+echo "[INFO] Starting container '${CONTAINER_NAME}'..."
+echo "[INFO] Mounting: ${ROM_DEVELOPERS_DIR} -> /workspace/rom_developers"
+
+docker run -it --rm \
+    --name "${CONTAINER_NAME}" \
+    --network=host \
+    --volume="${ROM_DEVELOPERS_DIR}:/home/mr_robot/rom_developers" \
+    "${IMAGE_NAME}" \
+    /bin/bash
