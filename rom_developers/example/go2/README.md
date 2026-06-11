@@ -196,11 +196,13 @@ flowchart TD
 ### Sine Curve Path (30 PathPoints)
 
 ```mermaid
-xychart-beta
-    title "Trajectory Path (x vs y)"
-    x-axis "x (m)" [0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0]
-    y-axis "y (m)" [-0.6, -0.3, 0, 0.3, 0.6]
-    line [0, 0.37, 0.6, 0.37, 0, -0.37, -0.6]
+flowchart LR
+    P0("x=0.0\ny=0.00") --> P1("x=0.5\ny=+0.37") --> P2("x=1.0\ny=+0.60") --> P3("x=1.5\ny=+0.37") --> P4("x=2.0\ny=0.00") --> P5("x=2.5\ny=-0.37") --> P6("x=3.0\ny=-0.60")
+
+    style P0 fill:#4a90d9,color:#fff
+    style P2 fill:#27ae60,color:#fff
+    style P4 fill:#4a90d9,color:#fff
+    style P6 fill:#e74c3c,color:#fff
 ```
 
 > Path formula: `y = 0.6 · sin(π · vx · t)` — Robot သည် sine curve ကို လိုက်သွားသည်
