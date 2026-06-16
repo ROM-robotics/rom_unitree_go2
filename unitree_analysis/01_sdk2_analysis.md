@@ -11,6 +11,30 @@ Real-time DDS topic publish/subscribe helper layer. `LowCmd_`, `LowState_`, `Spo
 3. `robot/go2/*`
 High-level RPC/service client layer. `sport`, `robot_state`, `config`, `video`, `vui`, `utrack`, `obstacles_avoid` စတဲ့ subsystem တွေကို `Client` base class ပေါ်မှာ wrap လုပ်ထားတယ်။
 
+## Quick view
+
+| Layer | Main path | What it does |
+| --- | --- | --- |
+| DDS schema | `include/unitree/idl/go2` | Topic payload classes, generated message contracts |
+| DDS helper | `include/unitree/dds_wrapper/robots/go2` | Publisher/subscriber wrappers, CRC, joystick handling |
+| Service client | `include/unitree/robot/go2` | High-level RPC-style APIs such as sport, config, video |
+
+```mermaid
+flowchart TD
+	A[Application code] --> B[robot/go2 client layer]
+	A --> C[dds_wrapper/robots/go2 helper layer]
+	B --> D[JSON request and response payloads]
+	C --> E[IDL DDS message classes]
+	D --> E
+	E --> F[Go2 topics and services]
+```
+
+## Read this first
+
+- Joint-level servo control လုပ်မယ်ဆိုရင် `idl/go2` သို့မဟုတ် `dds_wrapper/robots/go2` ကိုကြည့်
+- Walk, stand, config, camera, UI feature လုပ်မယ်ဆိုရင် `robot/go2/*_client.hpp` ကိုကြည့်
+- Runtime feedback လိုရင် high-level client တင်မဟုတ်ဘဲ DDS subscriber topic ကိုတွဲသုံး
+
 ## 1. DDS generated message layer: `include/unitree/idl/go2`
 
 ဒီ folder က Cyclone DDS IDL generator ထုတ်ထားတဲ့ C++ classes တွေပါ။ Go2 SDK မှာ topic payload contract အနေနဲ့သုံးတယ်။ Directory inventory ကိုကြည့်ရင် core message groups တွေက:
@@ -80,6 +104,17 @@ Observation:
 1. `*_api.hpp` က service name, api version, api id constants နဲ့ JSON payload classes ကို define လုပ်တယ်။
 2. `*_client.hpp` က `Client` base class ကို inherit လုပ်ပြီး method signatures ပေးတယ်။
 3. `*_error.hpp` ရှိရင် subsystem-specific error code declarations ထည့်ထားတယ်။
+
+```mermaid
+flowchart LR
+	A[sport] --> H[Motion and gait commands]
+	B[robot_state] --> I[Service switch and report frequency]
+	C[config] --> J[CRUD plus change callbacks]
+	D[video] --> K[Snapshot image fetch]
+	E[vui] --> L[Brightness volume and switch]
+	F[utrack] --> M[UWB tracking switch and state]
+	G[obstacles_avoid] --> N[Avoidance mode and command authority]
+```
 
 ### 3.1 `sport/`
 
@@ -330,6 +365,20 @@ Key points:
 - တပြိုင်နက် `ChannelSubscriber<SportModeState_>` နဲ့ `rt/sportmodestate` ကို subscribe လုပ်ပြီး feedback state ဖတ်တယ်
 
 ဒါက service client + DDS state topic combine လုပ်တာဟာ expected usage pattern ဖြစ်ကြောင်းပြတယ်။
+
+```mermaid
+sequenceDiagram
+	participant App as User app
+	participant Client as SportClient
+	participant Service as Go2 service
+	participant Topic as rt/sportmodestate
+
+	App->>Client: SetTimeout() and Init()
+	App->>Client: Move() or StandUp()
+	Client->>Service: RPC request
+	Service-->>Client: status code
+	Topic-->>App: DDS state updates via subscriber
+```
 
 ## 5. Practical map: Go2 header ကို ဘယ် use-case မှာသုံးမလဲ
 
